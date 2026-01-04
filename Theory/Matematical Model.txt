@@ -1,0 +1,1783 @@
+Mathematical Model of Consciousness (Extended Version)
+
+---
+
+1. Basic Neural Level with Phase Dynamics
+
+Membrane Potential and Oscillator Phase:
+
+tau_i * dV_i/dt = -V_i(t) + R_i * [Sum_j w_ij * s_j(t) + u_i(t)] + h_i(t) + sigma_i * xi_i(t)
+
+New: Phase variable for Gamma rhythms:
+
+d_phi_i/dt = omega_i + Sum_j K_ij * sin(phi_j - phi_i) + epsilon_phi * V_i(t)
+
+Notation:
+- phi_i(t): Oscillator phase of neuron i (0 to 2*pi)
+- omega_i: Natural frequency (~40 Hz for gamma rhythm)
+- K_ij: Phase coupling strength
+- epsilon_phi: Coupling of amplitude (membrane potential) to phase
+
+Spike with phase consideration:
+
+x_i(t) = f(V_i(t) - theta_i) * [1 + alpha_sync * cos(phi_i(t))]
+
+Synchronization Criterion (Kuramoto Order Parameter):
+
+R(t) * e^(i*Psi(t)) = (1/N) * Sum_j e^(i*phi_j(t))
+
+Synchronized <==> R(t) > 0.8
+
+---
+
+2. Hierarchical Architecture with Time Scales
+
+tau_l * dX_l/dt = -X_l(t) + F_l(X_{l-1}(t), X_l(t), X_{l+1}(t), U_l(t), H_l(t))
+
+Phase synchronization between levels (Cross-frequency coupling):
+
+Phi_l(t) = < phi_i(t) >_{i in layer_l}
+
+CFC_{l,l+1} = |< e^(i(n * Phi_l - Phi_{l+1})) >_t|
+(n:1 phase coupling)
+
+---
+
+3. Extended Chemical Modulation
+
+dH/dt = A(X(t)) - lambda * H(t) + D(t)
+
+Modulation of oscillation frequency:
+
+omega_i(t) = omega_0 + Delta_omega_DA * DA(t) + Delta_omega_ACh * ACh(t)
+
+Example:
+- Dopamine (DA): Increase DA -> Increase gamma power
+- Acetylcholine (ACh): Increase ACh -> Increase theta rhythms (hippocampus, 4-8 Hz)
+
+Modulation of synaptic efficiency:
+
+w_ij^eff(t) = w_ij * m(H(t)) * [1 + kappa * tanh(R_sync(t) - 0.5)]
+
+(Synchronous coalitions are amplified)
+
+---
+
+4. Plasticity with Metaplasticity and Consolidation
+
+4a. STDP with Phase Dependence:
+
+dw_ij/dt = eta(theta_M) * [K(Delta_t, Delta_phi) * x_i(t) * x_j(t - Delta_t) - gamma * w_ij * x_i^2(t)] + zeta_ij(t)
+
+New STDP window with phase:
+
+K(Delta_t, Delta_phi) = A * exp(-Delta_t^2 / 2*tau^2) * [1 + B * cos(Delta_phi)]
+
+(Maximum potentiation when Delta_phi ~ 0, i.e., in-phase spikes)
+
+4b. Metaplasticity:
+
+theta_M(t+1) = theta_M(t) + epsilon * [< x_i^2 >_T - theta_target]
+
+4c. Consolidation during Sleep
+
+Phase 1: Slow Wave Sleep (SWS)
+
+if sleep_stage == 'SWS':
+    D(t) -> 0  (sensory input disconnected)
+    
+    Reactivation of patterns:
+    X_replay(t) ~ p(X | w_current, history)
+    
+    Global Weight Optimization:
+    w_ij += eta_sleep * Integral [epsilon_l(X_replay) * d_mu/d_w_ij] dt
+    
+    Lowering Metaplastic Threshold:
+    theta_M -> theta_M - Delta_theta_SWS
+
+Phase 2: REM Sleep
+
+if sleep_stage == 'REM':
+    Generative "Dreams" (Latent Space Exploration):
+    X_dream(t) ~ p_generative(X | w, H_random)
+    
+    Training Generative Model:
+    w_ij += eta_REM * [d_log p(X_dream)/d_w_ij]
+    
+    Erasing Temporary Connections (Forgetting):
+    w_ij -> w_ij * (1 - delta_forget * [1 - importance_ij])
+
+Synapse Importance Criterion:
+
+importance_ij = < |d_L/d_w_ij| >_wakeful_experience
+
+(Elastic Weight Consolidation — protection against catastrophic forgetting)
+
+---
+
+5. Predictive Coding + Active Inference
+
+5a. Hierarchical Generative Model:
+
+Prediction: mu_l(t) = g_l(X_{l+1}(t), a(t))  <-- now depends on action!
+Error: epsilon_l(t) = Pi_l^{1/2} * [X_{l-1}(t) - mu_l(t)]
+
+Free Energy:
+F = Sum_l ||epsilon_l||^2 + KL(q(X) || p(X)) + KL(q(a) || p(a))
+
+5b. Active Inference (Action)
+
+Minimization of Free Energy through changing the world:
+
+da/dt = -dF/da = -Sum_l [epsilon_l * d_mu_l/da]
+
+Interpretation: Action a(t) changes sensory input U(t+1) to bring it closer to predictions.
+
+Proprioceptive Loop (Reflex):
+
+a_reflex(t) = -k_p * epsilon_proprio(t) - k_d * d_epsilon_proprio/dt
+
+(PD controller to minimize error between desired and current posture)
+
+Goal-Directed Action:
+
+a_goal(t) = arg min_a E[F(X_future | a, policy)]
+
+policy = pi(a | X, M)  <-- depends on meta-cognition
+
+Exploration vs. Exploitation:
+
+a_final(t) = (1 - beta_explore) * a_goal(t) + beta_explore * xi_a(t)
+
+beta_explore ~ f(Theta)  <-- higher during high uncertainty
+
+---
+
+6. Meta-cognition and Self-Awareness
+
+M(t+1) = r(M(t), X(t), a(t), Theta(t))
+
+Theta_action(t) = Var[dF/da]  <-- uncertainty in action selection
+
+Cognitive Conflict:
+
+C = ||M_predict - X_actual||^2 + ||a_intended - a_executed||^2
+
+Sense of Agency (SoA):
+
+SoA(t) = exp(-lambda * C_action(t))
+
+C_action = ||outcome_predicted - outcome_actual||^2
+
+(Low discrepancy -> "I control my actions")
+
+---
+
+7. Global Integration with Phase Synchronization
+
+7a. Competitive Dynamics of Coalitions:
+
+dA_i/dt = -A_i/tau + Sum_j [W_ij * rho(A_j)] + I_i(t) - beta * Sum_{j!=i} A_j(t)
+
+7b. Phase Synchronization of Coalitions:
+
++ gamma_sync * Sum_j [A_j * cos(Phi_j - Phi_i)]
+
+Notation:
+- Phi_i: Mean phase of coalition i
+- gamma_sync: Synchronization weight
+
+Criteria for Conscious Access:
+
+Conscious(t) = {i : A_i(t) > theta_A  AND  R_i(t) > theta_sync}
+
+(Requires both high activity AND synchronization)
+
+Broadcasting to Working Memory:
+
+dWM/dt = lambda_in * Broadcasting(Conscious(t)) - lambda_out * WM(t) - lambda_interference * |Conflict(WM)|
+
+---
+
+8. Energy Balance and Homeostasis
+
+8a. Metabolic Cost:
+
+E(t) = Sum_i [c_spike * x_i(t) + c_synapse * Sum_j |w_ij * s_j(t)|] 
+       + c_action * ||a(t)||^2 + c_baseline
+
+8b. Circadian Modulation:
+
+H_circadian(t) = H_0 * [1 + A_circ * sin(2*pi*t/24h + phi)]
+
+if H_circadian < threshold:
+    -> Transition to sleep (D(t) -> 0, consolidation activates)
+
+8c. Homeostatic Sleep Drive:
+
+S(t+1) = S(t) + Delta_t * [k_wake * awake(t) - k_sleep * asleep(t)]
+
+P(sleep | S) = sigmoid(alpha * (S - S_threshold))
+
+Interpretation: Accumulation of "sleep debt" -> increased probability of falling asleep.
+
+---
+
+9. Pathological States
+
+9a. Existing:
+
+- Depression: DA down, 5-HT down -> pessimistic predictions
+- Anxiety: Pi(t) up_up -> hyper-precision to errors
+- Schizophrenia: Pi disrupted, DA up -> hallucinations
+
+9b. Additions:
+
+Insomnia:
+S(t) up_up  but  P(sleep) down  (homeostat malfunction)
+-> Accumulation of errors, decreased consolidation, cognitive deficit
+
+Parkinson's Disease:
+DA down_down -> decreased omega_gamma, decreased phase synchronization
+-> Slowed actions (bradykinesia), tremor (reflex disruption)
+
+Epilepsy:
+K_ij up_up -> hypersynchronization (R(t) -> 1)
+-> Cascade activation, seizures
+
+Coma:
+R(t) -> 0  (desynchronization)  OR  R(t) -> 1, omega -> 0  (slow waves)
+Phi(X) ~ 0  (loss of integration)
+
+---
+
+10. Criteria for Consciousness
+
+10a. Integrated Information (IIT):
+
+Phi(X) = min_partition MI(X_1 : X_2 | cut)
+
+Phi_eff(X) = Phi(X) * f(R_sync(t))  <-- accounting for synchronization
+
+10b. Causal Density:
+
+CD(t) = Rank[G(X_t, X_{t-tau})]  <-- Granger causality matrix
+
+10c. Consciousness Criterion:
+
+Conscious <==> Phi_eff > Phi_min  AND  R_sync > 0.7  AND  WM_load > 0
+
+---
+
+11. Sleep: Cycles and Functions
+
+Sleep/Wake Model:
+State = {Wake, N1, N2, N3 (SWS), REM}
+
+Transitions:
+Wake -> N1 -> N2 -> N3 -> REM -> N2 -> ... (90 min cycles)
+
+During SWS (Slow Wave Sleep):
+
+- Frequency: delta-waves (0.5-4 Hz), omega_i -> 1-2 Hz
+- Activity: A_i down_down, R_sync -> high (hypersynchronization)
+- Function: Consolidation of declarative memory
+- Process:
+  
+  for epoch in SWS:
+      Reactivation of hippocampal patterns:
+      X_replay ~ sharp-wave ripples (150-250 Hz)
+      
+      Transfer to neocortex:
+      w_cortex += eta * < X_hippocampus(t-delta) * X_cortex(t) >
+      
+      Synaptic downscaling:
+      w_ij -> w_ij * (1 - delta_SWS * [1 - importance_ij])
+
+During REM:
+
+- Frequency: theta (4-8 Hz), beta (15-30 Hz), gamma
+- Activity: A_i high, but D(t) = 0 (sensory input disconnected)
+- Function: Training generative model, procedural memory, forgetting
+- Process:
+  
+  for epoch in REM:
+      Generation of "dreams":
+      X_dream(t) ~ p(X | w, H_random, a_random)
+      
+      Training predictions:
+      Minimize: F_generative = -log p(X_dream | w)
+      
+      Erasing weak connections:
+      w_ij -> w_ij - eta_forget * (1 - importance_ij)
+      
+      Consolidation of motor skills:
+      w_motor += eta_REM * < epsilon_action * d_mu/d_w >
+
+Sleep Deprivation:
+
+if sleep_debt > critical:
+    -> theta_M increases (reduced plasticity)
+    -> w_ij unregularized (overfitting)
+    -> Pi(t) increases (anxiety)
+    -> Phi(X) decreases (microsleeps, fragmentation of consciousness)
+
+---
+
+12. The Binding Problem — Solution
+
+12a. Binding Mechanism via Synchronization:
+
+Hypothesis: Objects/features are bound via gamma synchronization (~40 Hz) of neurons in different modules.
+
+Mathematics:
+
+For object O_k:
+Neurons_k = {i : feature_i in O_k}
+
+Binding(O_k, t) <==> |< e^(i*phi_i(t)) >_{i in Neurons_k}| > 0.9
+
+Example: Red Square
+- V4 (color): neurons "red" -> phi_color(t)
+- V1 (shape): neurons "square" -> phi_shape(t)
+- Binding: |phi_color - phi_shape| < pi/4 (synchronous)
+
+12b. Binding Equation in GWT:
+
+dA_i/dt = ... + gamma_bind * Sum_{j in related} [A_j * cos(Phi_j - Phi_i) * semantic_similarity(i,j)]
+
+Result: Semantically related coalitions synchronize and win the competition.
+
+---
+
+13. Active Inference: Closing the Loop
+
+Complete System "Brain <-> Body <-> Environment":
+
+dX/dt = f_perception(U, X, a)  <-- perception
+da/dt = f_action(X, M, Theta)      <-- action
+dU/dt = f_environment(U, a)    <-- environment changes by actions
+
+Free Energy (Total):
+
+F_total = F_perception + F_action + F_proprioception
+
+Where:
+F_action = ||a_predicted - a_executed||^2 / sigma_a^2
+F_proprio = ||body_state_predicted - body_state_actual||^2 / sigma_p^2
+
+Minimization:
+
+dX/dt = -dF/dX  <-- belief update (perception)
+da/dt = -dF/da  <-- action selection (motor control)
+
+Equivalence:
+
+Active Inference = RL (Reinforcement Learning), where:
+
+Reward = -F
+Value function = -E[F_future]
+Policy = arg min_pi E[F | pi]
+
+---
+
+14. Death and Cessation of Consciousness
+
+Cascade of Destruction:
+Stage 1: Anoxia
+
+I_metabolic -> 0
+E_available(t) -> E_available(t-1) - E(t)  (reserves depleting)
+
+Stage 2: Energy Crisis
+
+if E_available < E_critical:
+    ATP down_down
+    Na+/K+-ATPase fails
+    -> Depolarization: V_i -> V_rest + 30 mV
+
+Stage 3: Excitotoxicity
+
+Ca2+ influx -> activation of proteases -> synaptic degradation
+w_ij(t+1) ~ w_ij(t) + Huge_noise
+
+Stage 4: Loss of Synchronization
+
+R(t) -> 0  (neurons fire chaotically)
+Phi(X) -> 0  (no integration)
+
+Stage 5: Electrical Silence
+
+x_i(t) -> 0  for all i
+X(t) -> noise
+M(t) -> undefined
+
+Criterion for Irreversible Death:
+
+Integral_{t_0}^{t_0+10min} ||X(t)||^2 dt ~ 0  AND  d_w_ij/dt ~ 0
+
+(Absence of activity and impossibility of synaptic recovery)
+
+---
+
+15. Simulation: Example Parameters (Python)
+
+# Neurons
+N = 10000
+tau_mem = 10e-3  # 10 ms
+omega_gamma = 2 * pi * 40  # 40 Hz
+
+# Hierarchy
+L = 6  # V1, V2, V4, IT, PFC, mPFC
+tau = [10e-3, 30e-3, 100e-3, 300e-3, 1.0, 3.0]  # ms -> seconds
+
+# Chemistry
+lambda_DA = 1/60  # Dopamine clearance ~1 min
+eta = 0.001   # Learning rate
+
+# Sleep
+sleep_cycle = 90 * 60  # 90 min
+SWS_fraction = 0.25
+REM_fraction = 0.20
+
+# Consciousness
+Phi_threshold = 0.5
+R_sync_threshold = 0.7
+
+---
+
+17. GABAergic Modulation and Anesthesia
+
+17a. Inhibitory Dynamics
+
+GABA Receptors (GABA_A and GABA_B):
+
+I_GABA_i(t) = g_GABA_A * (V_i - E_Cl) * s_GABA_A(t) 
+            + g_GABA_B * (V_i - E_K) * s_GABA_B(t)
+
+Notation:
+- g_GABA_A/B: Conductance of GABA receptors
+- E_Cl ~ -70 mV, E_K ~ -90 mV (reversal potentials)
+- s_GABA(t): Synaptic variable
+
+GABA Synaptic Dynamics:
+
+ds_GABA_A/dt = alpha_A * [GABA](t) * (1 - s_GABA_A) - beta_A * s_GABA_A
+ds_GABA_B/dt = alpha_B * [GABA](t) * (1 - s_GABA_B) - beta_B * s_GABA_B
+
+Time Constants:
+- GABA_A: Fast (tau ~ 10-20 ms) — phasic inhibition
+- GABA_B: Slow (tau ~ 100-300 ms) — tonic inhibition
+
+17b. Updated Neuron Equation:
+
+tau_i * dV_i/dt = -V_i(t) 
+                + R_i * [Sum_j w_ij^exc * s_j^exc(t) - Sum_k w_ik^inh * s_k^inh(t) + u_i(t)]
+                - I_GABA_i(t)
+                + h_i(t) 
+                + sigma_i * xi_i(t)
+
+17c. Interneurons (PV, SST, VIP)
+
+Three classes of inhibitory interneurons:
+
+1. Parvalbumin+ (PV) — Fast, perisomatic:
+tau_PV * dV_PV/dt = -V_PV + Sum_j w_PV,j * x_j(t)
+
+x_PV(t) = f_fast(V_PV - theta_PV)  # high-frequency spikes
+
+Targets: Soma of pyramidal neurons
+Function: winner-take-all, gamma rhythms
+
+2. Somatostatin+ (SST) — Dendritic:
+tau_SST * dV_SST/dt = -V_SST + Sum_j w_SST,j * x_j(t) + top_down(X_{l+1})
+
+x_SST(t) = f_slow(V_SST - theta_SST)
+
+Targets: Apical dendrites
+Function: Modulation of top-down signals
+
+3. Vasoactive Intestinal Peptide+ (VIP) — Disinhibition:
+VIP -> SST -|  (Inhibits SST)
+VIP -> PV -|
+
+Result: Disinhibition
+Function: Signal amplification, attention
+
+Microcircuit:
+
+Excitatory (E) -> PV -> E  (feed-forward inhibition)
+E -> SST -> E_dendrites     (modulatory inhibition)
+E -> VIP -> SST -> E         (disinhibition)
+
+17d. Anesthesia: Mechanism of Action
+
+Propofol, Isoflurane, Sevoflurane:
+
+Potentiate GABA_A receptors:
+
+g_GABA_A^anes(t) = g_GABA_A * [1 + k_anes * [Anesthetic](t)]
+
+Where k_propofol ~ 5-10
+
+Effect on System:
+
+1. Increase in tonic inhibition: V_i -> more hyperpolarized state
+2. Decrease in excitability: x_i(t) down_down
+3. Disruption of thalamo-cortical loops: Thalamus <-> Cortex connection weakens
+4. Destruction of phase synchronization: R(t) -> 0
+5. Fragmentation of Global Workspace: A_i(t) < theta_consciousness for all i
+6. Collapse of Integration: Phi(X) -> 0
+
+Equation under Anesthesia:
+
+dX_l/dt = -X_l/tau_l + F_l(...) - K_anes * [Anes](t) * X_l
+
+Where K_anes -> infinity at deep anesthesia
+
+Anesthesia Stages:
+
+[Anes]    Effect                           Phi(X)    R_sync
+------------------------------------------------------------------------
+0-1 uM    Sedation, drowsiness              0.4       0.6
+1-3 uM    Loss of consciousness, amnesia    0.1       0.3
+3-5 uM    Surgical anesthesia               0.01      0.1
+>5 uM     Suppression of brainstem reflexes ~0        ~0
+
+Emergence:
+
+d[Anes]/dt = -lambda_clearance * [Anes](t)
+
+As clearance occurs:
+1. Thalamus reactivates
+2. R_sync recovers (alpha -> beta -> gamma rhythms)
+3. A_i exceeds threshold -> consciousness returns
+4. Phi(X) grows
+
+Hysteresis:
+Falling asleep != Waking up (different thresholds due to receptor adaptation):
+[Anes]_sleep > [Anes]_wake
+
+---
+
+18. Affective Dimension — Neurobiology of Emotions
+
+18a. Key Structures
+
+Amygdala (Amygdala):
+A(t) = [A_LA(t), A_BLA(t), A_CeA(t)]^T
+
+LA  — Lateral (sensory input)
+BLA — Basolateral (valence evaluation)
+CeA — Central (visceral output)
+
+Insula (Insula):
+I(t) = [I_posterior(t), I_anterior(t)]^T
+
+Posterior: Interoception (heartbeat, breathing, pain)
+Anterior: Subjective feeling (integration into consciousness)
+
+Ventral mPFC (vmPFC):
+vmPFC(t) — Value assessment, emotion regulation
+
+Ventral Striatum / NAcc:
+VS(t) — Reward anticipation, motivation
+
+18b. Two-Dimensional Model of Affect (Russell's Circumplex)
+
+Valence and Arousal:
+
+Emotion(t) = [V(t), A(t)]^T
+
+V(t) in [-1, 1]  (negative <-> positive)
+A(t) in [0, 1]   (calm -> excited)
+
+Examples:
+- Joy: V=+0.8, A=0.7
+- Anger: V=-0.6, A=0.9
+- Sadness: V=-0.7, A=0.3
+- Calm: V=+0.3, A=0.1
+
+18c. Calculation of Valence and Arousal
+
+Valence:
+
+dV/dt = (1/tau_V) * [mu_V - V(t)] + beta_reward * delta_RPE(t) + beta_pain * Pain(t)
+
+where:
+mu_V(t) = f_vmPFC(X_context(t), Goals(t))  — Baseline tone
+delta_RPE(t) = Reward(t) - Prediction(t)      — Reward Prediction Error
+
+Arousal:
+
+dA/dt = (1/tau_A) * [-A(t)] + alpha_surprise * |epsilon_total(t)|
+                           + alpha_threat * Threat(t)
+                           + alpha_NE * NE(t) + alpha_insula * I(t)
+
+where:
+|epsilon_total| = Sum_l ||epsilon_l(t)||  — Total prediction error
+Threat(t) = A_CeA(t)         — Amygdala activity
+
+18d. Amygdala Emotional Dynamics
+
+Lateral Amygdala (Sensory Input):
+
+dA_LA/dt = Sum_sensory w_sen * x_sensory(t) - lambda_LA * A_LA(t)
+
+Basolateral (Conditioned Stimulus):
+
+dA_BLA/dt = w_LA->BLA * A_LA(t) + w_context * X_hippocampus(t) 
+           - w_vmPFC->BLA * vmPFC(t)  <-- top-down regulation
+           - lambda_BLA * A_BLA(t)
+
+Central (Output to Body):
+
+dA_CeA/dt = w_BLA->CeA * A_BLA(t) - lambda_CeA * A_CeA(t)
+
+Outputs:
+- HPA axis -> Cortisol (stress)
+- Sympathetic NS -> Adrenaline (arousal)
+- PAG -> Freeze/Flight
+- Facial nerve -> Emotional expression
+
+18e. Insula — Interoception
+
+Posterior Insula (Direct signal from body):
+
+dI_post/dt = Sum_i w_i * Body_signal_i(t) - lambda_post * I_post(t)
+
+Body_signals: {
+  HR(t)        — Heart rate
+  BP(t)        — Blood pressure
+  Resp(t)      — Respiration
+  Pain(t)      — Nociception
+  Temp(t)      — Temperature
+  GI(t)        — Gastrointestinal
+}
+
+Anterior Insula (Subjective Feelings):
+
+dI_ant/dt = w_post * I_post(t) + w_context * X(t) - lambda_ant * I_ant(t)
+
+Feeling(t) = f(I_ant(t), V(t), A(t))
+
+Interoceptive Accuracy:
+
+IA(t) = Corr(I_post(t), Body_true(t))
+
+High IA -> better emotion awareness (alexithymia at low IA)
+
+18f. Emotional Modulation of Cognition
+
+Influence on Free Energy:
+
+F_emotion = F_cognitive + lambda_affect * E_affect
+
+where:
+E_affect = -V(t) * Outcome(t) + A(t) * Uncertainty(t)
+
+Modulation of Learning:
+
+eta_effective(t) = eta * [1 + beta_arousal * A(t)] * sign(V(t))
+
+High arousal -> faster learning
+Negative valence -> avoidance
+
+Modulation of Attention:
+
+Pi_l(t) = Pi_baseline * [1 + gamma_emotion * A_BLA(t)]
+
+Threat -> precision amplification (hypersensitivity)
+
+Modulation of Synchronization:
+
+omega_i(t) = omega_baseline + Delta_omega_arousal * A(t)
+
+High arousal -> increased gamma frequency
+
+18g. Specific Emotions via Activation Patterns
+
+Fear:
+Fear(t) proportional to A_CeA(t) * [1 - vmPFC(t)]
+
+Body: Increased HR, BP, sweating, mydriasis
+Action: Freeze or Escape
+Cognition: Pi up (hypersensitivity to threats)
+
+Anger:
+Anger(t) proportional to A_CeA(t) * Frustration(t) * Testosterone(t)
+
+Frustration = |Goal - State|^2 at high Arousal
+Body: Increased BP, muscle tension
+Action: Aggression (a_attack)
+
+Joy:
+Joy(t) proportional to VS(t) * delta_RPE(t)  when delta_RPE > 0
+
+VS: ventral striatum (anticipation + reward)
+Body: Increased Dopamine, smile
+Action: Approach (a_approach)
+
+Sadness:
+Sadness(t) proportional to -V(t) * Low_A(t) * [5-HT down]
+
+Body: Decreased energy, crying
+Action: Withdrawal (social isolation)
+Cognition: Pessimistic predictions (mu_V < 0)
+
+Disgust:
+Disgust(t) proportional to I_ant(t) * Contamination_signal(t)
+
+Body: Nausea, GI activation
+Action: Avoidance, rejection
+Function: Protection from pathogens/toxins
+
+18h. Emotion Regulation (vmPFC -> Amygdala)
+
+Cognitive Reappraisal:
+
+Target: Reduce A_BLA through changing interpretation
+
+w_vmPFC->BLA(t+1) = w_vmPFC->BLA(t) + eta_reg * [Goal_emotion - Emotion_current]
+
+Strategies:
+1. Reinterpretation: "Not a threat, but a challenge"
+2. Distancing: "Observing from the side"
+3. Suppression: Blocking A_CeA -> face muscles
+
+Suppression vs Reappraisal:
+
+Suppression: Blocks output (A_CeA -> body), but A_BLA remains high
+  -> Metabolically costly
+  -> Physiological stress persists
+
+Reappraisal: Reduces A_BLA at input
+  -> More effective
+  -> Lower cost
+
+18i. Emotions in Consciousness
+
+Integration into Global Workspace:
+
+Emotional_content(t) = [V(t), A(t), Feeling(t), Body_state(t)]
+
+Conscious_emotion <==> Emotional_content in Workspace AND Phi > threshold
+
+Feeling vs Emotion:
+
+Emotion: Body(t) + A_CeA(t)  <-- unconscious reaction
+Feeling: I_ant(t) + Workspace <-- conscious experience
+
+Alexithymia:
+
+I_ant NOT_LINKED_TO Workspace  (Insula not integrated)
+
+-> Subject feels bodily reactions but cannot name the emotion
+
+---
+
+19. Theory of Mind — Second-Order Recursion
+
+19a. Basic Structure
+
+Mentalization Levels:
+
+Level 0: Self-model
+  M_0(t) = r(X(t), a(t), Theta(t))
+  
+Level 1: Other-model
+  M_1_other(t) = r_ToM(O_observable(t), Context(t))
+  
+Level 2: Self-modeling-other-modeling-self
+  M_2_self(t) = "What do they think of me?"
+  M_2_self(t) = r_ToM(M_1_other(t), My_actions(t))
+
+Notation:
+- M_0 — My model of self
+- M_1_other — My model of another person
+- M_2 — My model of what the other thinks of me
+- r_ToM — Mentalistic inference function
+
+19b. Mathematical Formalization
+
+Model of Other as Generative Model:
+
+p(O_behavior | M_other) = Integral p(O | a, X_other) * p(a | Goals_other, X_other) 
+                            * p(X_other | M_other) dX_other da
+
+Inverse Inference:
+
+p(M_other | O_behavior) proportional to p(O_behavior | M_other) * p(M_other)
+
+i.e., observing behavior O, we infer mental state
+
+19c. Components of ToM
+
+1. Beliefs:
+
+B_other(t) = {what they know, what they believe}
+
+dB_other/dt = f_update(O_other_observable(t), History)
+
+Example: False Belief Task (Sally-Anne)
+  B_self: Ball is in basket B
+  B_Sally: Ball is in basket A (she didn't see the move)
+
+2. Desires/Goals:
+
+G_other(t) = arg max_{g} p(a_other | g, B_other)
+
+Inference via Inverse RL:
+  Observing actions a_other(t), we infer reward R_other(s)
+
+3. Intentions:
+
+I_other(t) = p(a_other_future | G_other, B_other, X_other)
+
+"What are they going to do next?"
+
+4. Emotions:
+
+E_other(t) = [V_other(t), A_other(t)]
+
+Inference via:
+- Facial expression observation: O_face(t) -> E_other
+- Context: X_context -> E_other  
+- Theory: "If their goal is blocked -> Anger_other up"
+
+19d. Neural Substrates of ToM
+
+Key Areas:
+
+1. Temporo-Parietal Junction (TPJ):
+   - Other's perspective processing
+   - Switch between self and other
+
+2. Medial Prefrontal Cortex (mPFC):
+   - Mental states (beliefs, desires)
+   - Recursion: "They think that I think..."
+
+3. Posterior Superior Temporal Sulcus (pSTS):
+   - Biological motion
+   - Intentions from actions
+
+4. Precuneus:
+   - Self-other distinction
+   - Episodic memory (simulation of other)
+
+Mirror Neurons:
+
+x_i^mirror(t) = f(a_self(t)) + f(O_other_action(t))
+
+Function: Direct understanding of motor intentions
+  "I see them reaching for the cup -> they want to drink"
+
+19e. Mathematical Model of Recursion
+
+Level 0: Self-model
+
+dM_0/dt = r_0(X_self(t), a_self(t), Body_self(t), Theta_self(t))
+
+M_0 = {
+  X_self:       my percepts
+  a_self:       my actions
+  G_self:       my goals
+  E_self:       my emotions
+  B_self:       my beliefs
+}
+
+Level 1: Model of Other
+
+dM_1_other/dt = r_1(O_other(t), Context(t), M_0(t), Priors_social)
+
+M_1_other = {
+  X_other:      what they perceive (my estimate)
+  a_other:      their actions (observed)
+  G_other:      their goals (inferred)
+  E_other:      their emotions (via empathy or theory)
+  B_other:      their beliefs (may differ from B_self!)
+}
+
+Critically: B_other != B_self  (understanding false beliefs)
+
+Level 2: Model of Other's Model of Self
+
+dM_2_self_in_other/dt = r_2(M_1_other(t), a_self(t), O_self_visible(t))
+
+M_2_self_in_other = "What do they think of me?"
+
+M_2 = {
+  X_self_as_seen_by_other:  how they see me
+  G_self_as_inferred:       what goals they attribute to me
+  E_self_as_perceived:      what emotions they read in me
+}
+
+Level 3: ... and higher (recursion)
+
+M_3 = "What I think about what they think about what I think about them"
+
+In theory: Infinite recursion
+In practice: Humans limited to ~3-5 levels of recursion
+  (Cognitive load, Working Memory)
+
+19f. Recursive Update Equations
+
+General form:
+
+M_{n+1}(t) = r_ToM(M_n(t), O_level_n(t), Context(t))
+
+where O_level_n — observables at level n (actions, words, expression)
+
+Free Energy for ToM:
+
+F_ToM = Sum_n [||O_level_n - mu_n(M_n)||^2 / sigma_n^2 + KL(q(M_n) || p(M_n))]
+
+Minimization via:
+dM_n/dt = -dF_ToM/dM_n
+
+Interpretation:
+- Fitting the model of the other so their behavior is predictable
+- Balance between data (O) and priors p(M)
+
+19g. Empathy vs Theory of Mind
+
+Empathy (Affective):
+
+E_self(t) <- E_other(t)  (Emotional Contagion)
+
+dE_self/dt = kappa_empathy * [E_other(t) - E_self(t)]
+
+Mechanism: Mirror neurons + Insula + ACC
+  "I feel your pain"
+
+Theory of Mind (Cognitive):
+
+Inference: O_other -> M_other  (Reasoned understanding)
+
+"I understand you are sad, but I don't necessarily feel sadness"
+
+Disorders:
+
+Autism Spectrum Disorder:
+  - ToM disrupted (difficulty with B_other, G_other)
+  - Empathy may be intact or enhanced
+
+Psychopathy:
+  - ToM intact (manipulation)
+  - Affective empathy reduced (lack of compassion)
+
+19h. Social Interactions
+
+Two-Agent Game:
+
+Agent A:
+  M_A = self-model
+  M_A->B = model of B
+  M_A->B->A = "what B thinks of me"
+
+Agent B:
+  M_B = self-model
+  M_B->A = model of A
+  M_B->A->B = "what A thinks of me"
+
+Mutual Update:
+
+dM_A->B/dt = f(O_B(t), M_A, Communication_B->A)
+dM_B->A/dt = f(O_A(t), M_B, Communication_A->B)
+
+Communication: Language, gestures, expression
+
+Common Ground:
+
+CG(t) = M_A intersect M_B intersect "A knows B knows" intersect "B knows A knows" ...
+
+Necessary for successful communication
+
+19i. Lies and Deception
+
+Intentional Disinformation Model:
+
+Agent A wants to create false M_B->A:
+
+1. A calculates true M_A
+2. A creates "fake" behavior O_A_fake
+3. O_A_fake -> M_B->A_false (B draws wrong conclusion)
+4. A uses M_B->A_false for manipulation
+
+Requires:
+- Working ToM (predict B's reaction)
+- Inhibition of truthful behavior
+- Working Memory (hold truth and lie separately)
+
+Lie Detection:
+
+Inconsistency: O_A_verbal != O_A_nonverbal
+
+B notices: micro-expressions, cognitive load in A
+  -> "Something is wrong, their model is inconsistent"
+
+19j. Development of ToM
+
+Ontogeny:
+
+Age 1-2 years: Joint attention
+  "We both look at the same thing"
+
+Age 3-4 years: False Belief understanding
+  "Sally thinks the ball is in basket A"
+
+Age 5-6 years: Recursive ToM (2 levels)
+  "He thinks I don't know"
+
+Adulthood: 3-5 levels of recursion
+
+Critical Factors:
+
+1. Prefrontal cortex maturation
+2. Working Memory capacity
+3. Inhibition (suppress own perspective)
+4. Social experience (learning via interaction)
+
+19k. Integration of ToM with Emotions
+
+Empathic Distress:
+
+if E_other = Fear AND Similarity_other_to_self > threshold:
+    E_self <- E_other  (Emotional Contagion)
+    
+    if vmPFC_regulation:
+        -> Compassion (compassion, without distress)
+    else:
+        -> Personal distress (own distress, avoidance)
+
+Social Pain:
+
+Rejection(t) = M_2_self_in_other shows "they don't value me"
+
+-> Activation: ACC (anterior cingulate cortex), same as physical pain
+-> E_self = Sadness, V down
+
+Guilt and Shame:
+
+Guilt = "My actions harmed another"
+  = f(a_self, E_other_negative, Responsibility_self)
+
+Shame = "I am bad in the eyes of others"
+  = f(M_2_self_in_other_negative, Self-concept_discrepancy)
+
+19l. ToM in Consciousness
+
+Criterion for Conscious ToM:
+
+Conscious_ToM <==> M_1_other in Workspace AND Phi(M_1) > threshold
+
+Can have automatic ToM (implicit) without awareness:
+  - Fast social reactions
+  - "I feel like they are going to do X, but I can't explain why"
+
+Conscious Reflection:
+
+Metacognitive_ToM(t) = r(M_1_other(t), Theta_ToM(t))
+
+Theta_ToM = Uncertainty in model of other
+
+"How sure am I that I understood their intentions?"
+
+Perspective Taking:
+
+Switch_mode:
+  if mode == "Self":
+      Active_model = M_0
+      Inhibit(M_1_other)
+  
+  if mode == "Other":
+      Active_model = M_1_other
+      Inhibit(M_0)  <-- requires executive control
+
+Difficulty: Suppress egocentric perspective (egocentric bias)
+
+---
+
+20. Integration: Emotions x ToM x Consciousness x Anesthesia
+
+20a. Full Architecture
+
+Level 0: Neurons + GABA
+  down
+Level 1: Modules (V1, V2, Amygdala, Insula, mPFC, TPJ)
+  down
+Level 2: Integration (Global Workspace + Phase Synchronization)
+  down
+Level 3: Consciousness (Phi, Self-model M_0)
+  down
+Level 4: Emotions (V, A, Feelings)
+  down
+Level 5: Social Cognition (M_1_other, M_2, ...)
+
+20b. Unified State Equation
+
+dS/dt = F_dynamics(S, U, H, GABA, Emotion, ToM, Anesthesia)
+
+where S = [X, M_0, M_1, M_2, V, A, Body_state, phi, w, ...]
+
+Components:
+
+1. Sensory-Motor Loop:
+   dX/dt = f_perception(U, X, a, GABA)
+   da/dt = f_action(X, M_0, E)
+   
+2. Meta-Cognition:
+   dM_0/dt = r_0(X, a, Body, Theta)
+   
+3. Emotions:
+   dV/dt = (mu_V - V)/tau_V + beta*delta_RPE + gamma*Threat
+   dA/dt = -A/tau_A + alpha*|epsilon| + alpha_NE*NE + alpha_threat*A_CeA
+   
+4. Body (Interoception):
+   dBody/dt = f_physiology(a, E, Stress)
+   
+5. ToM:
+   dM_1/dt = r_1(O_other, Context, M_0)
+   dM_2/dt = r_2(M_1, a_self, O_self_visible)
+   
+6. Chemistry:
+   dH/dt = A(X, E) - lambda*H + D
+   d[GABA]/dt = Production - Uptake + [Anesthetic]*kappa
+   
+7. Synchronization:
+   dphi/dt = omega + K*sync(phi_neighbors) + epsilon*V
+   
+8. Plasticity:
+   dw/dt = eta(theta_M)*STDP(x, Delta_t, Delta_phi) - gamma*w
+
+20c. Anesthesia Suppresses All Levels
+
+[Anesthetic](t) up
+  down
+GABA_A up_up -> V_i hyperpolarization
+  down
+x_i down -> X down
+  down
+phi desynchronization -> R -> 0
+  down
+A_i < theta -> Global Workspace collapse
+  down
+Phi(X) -> 0
+  down
+M_0 -> undefined (loss of self-awareness)
+  down
+E_self -> ? (feelings disappear)
+  down
+M_1_other -> inactive (ToM turns off)
+
+Shutdown Order:
+
+Light Sedation:
+  M_2, M_1 down (social cognition suffers first)
+  Emotion regulation down
+  
+Moderate Anesthesia:
+  M_0 fragments (disorientation)
+  WM collapse
+  V, A dulling
+  
+Deep Anesthesia:
+  X -> minimal processing
+  Phi -> 0
+  Complete loss of consciousness
+  
+Very Deep:
+  Brainstem reflexes suppressed
+  Breathing requires support
+
+20d. Emotional Modulation of ToM
+
+High Arousal + Negative Valence (Stress):
+  -> Egocentric bias up (harder to take other's perspective)
+  -> M_1_other less accurate
+  -> Hostile attribution: "They did it on purpose" (even if not)
+
+High Arousal + Positive Valence (Excitement):
+  -> Prosocial behavior up
+  -> Empathy up
+  
+Low Arousal + Negative Valence (Sadness):
+  -> Rumination on M_2 ("What do they think of me?")
+  -> Social withdrawal
+
+Mathematically:
+
+Accuracy_ToM(t) = Baseline_accuracy * [1 - alpha*|V(t) - V_optimal|] 
+                                    * [1 - beta*(A(t) - A_optimal)^2]
+
+V_optimal ~ 0.2 (slightly positive)
+A_optimal ~ 0.5 (moderate arousal)
+
+Extreme emotions -> poor ToM
+
+20e. Social Pain -> GABA Dysregulation
+
+Chronic social rejection:
+  -> chronic stress
+  -> cortisol up_up
+  -> GABA_A receptors down-regulated
+  -> hypersensitivity to threats
+  -> anxiety
+  -> social avoidance
+  -> even more rejection
+  
+Vicious Cycle:
+  Rejection -> Anxiety -> Social avoidance -> Rejection
+
+Therapeutic Targets:
+
+1. Pharmacological:
+   - Benzodiazepines (short-term): GABA up -> Anxiety down
+   - SSRI: Serotonin up -> A_CeA down -> emotion regulation
+   
+2. Cognitive:
+   - Reappraisal training: Improve vmPFC -> Amygdala control
+   - ToM training: More accurate M_1_other -> fewer hostile attributions
+  
+3. Social:
+   - Social support: Positive interactions -> Oxytocin up
+   - Mindfulness: Improve interoception (I_ant) -> better emotional awareness
+
+---
+
+21. Pathologies with New Components
+
+21a. Social Anxiety
+
+System:
+  M_2_self_in_others = catastrophically negative
+  "Everyone thinks I'm weird/incompetent"
+  
+  -> A up_up (high arousal in social situations)
+  -> V down (negative valence)
+  -> Pi_social up_up (hypersensitivity to social signals)
+  -> A_CeA up (perceived threat)
+  
+Mechanism:
+  - Erroneous ToM: Overestimation of others' negative judgments
+  - GABA dysregulation -> insufficient inhibition of Amygdala
+  - Avoidance -> no correction of erroneous models M_2
+
+Treatment:
+CBT (Cognitive Behavioral Therapy):
+  - Correct M_2: "They don't think that badly of me"
+  - Exposure: Test M_2 in reality -> update
+  
+SSRI:
+  - 5-HT up -> A_CeA down -> less perceived threat
+
+21b. Personality Disorder (Borderline PD)
+
+Characteristics:
+  - Emotional dysregulation: V(t), A(t) extremely unstable
+  - Attachment issues: M_1_other unstable
+  - "Splitting": M_1_other switches between "idealization" and "devaluation"
+  
+Mechanism:
+  - Hyperactive Amygdala (A_BLA, A_CeA up_up)
+  - Weak vmPFC -> Amygdala control
+  - Disturbed interoception (I_ant)
+  
+Emotional Formula:
+  dV/dt has large coefficient -> rapid swings
+  dA/dt = alpha_huge * |epsilon| -> strong reactions to small stimuli
+
+Therapy:
+DBT (Dialectical Behavior Therapy):
+  - Mindfulness -> improve I_ant (emotion awareness)
+  - Emotion regulation skills -> strengthen vmPFC control
+  - Interpersonal effectiveness -> stabilize M_1_other
+
+21c. Autism: ToM and Sensory Processing
+
+ToM Deficit:
+  - M_1_other less accurate (difficulty with B_other, G_other)
+  - M_2 practically inaccessible
+  - Difficulties with implicit social rules
+  
+Sensory Sensitivity:
+  - Pi_sensory up_up (hypersensitivity)
+  - sigma_noise up (higher internal noise)
+  - Filtering difficulties (weak PV interneurons?)
+  
+Compensation:
+  - Use of explicit rules instead of intuitive ToM
+  - "I learned that when people frown, they are unhappy"
+  - Systemizing (strengths in patterns, weakness in social)
+
+21d. Psychopathy: ToM without Empathy
+
+Cognitive ToM: Preserved (often enhanced)
+  - M_1_other accurate -> effective manipulation
+  - M_2 used for deception
+  
+Affective Empathy: Disturbed
+  - kappa_empathy ~ 0  (no emotional contagion)
+  - Insula (insula) hypoactive
+  - vmPFC -> Amygdala connections weak
+  
+Result:
+  - "I know what you feel (ToM), but I don't care (no empathy)"
+  - Instrumental aggression (to achieve goals)
+  - Lack of guilt: M_2 does not generate "they suffer because of me"
+
+21e. Depression: Emotions + ToM + Anesthesia Parallel
+
+Emotional Profile:
+  - V(t) << 0 (stably negative valence)
+  - A(t) low (anhedonia, fatigue)
+  - mu_V shifted down (pessimistic predictions)
+  
+ToM Disturbances:
+  - M_2_self_in_others = "I am a burden to others"
+  - Social isolation -> fewer updates to M_1
+  
+Neurochemistry:
+  - DA down, 5-HT down, NE down
+  - Similar to "chemical anesthesia" of motivation
+  
+Phenomenology:
+  - World perceived through "gray filter"
+  - Actions seem meaningless (a -> changes nothing)
+  - Time flows slowly (as in altered states of consciousness)
+  
+Parallel with Anesthesia:
+  - Not total loss of consciousness, but "dampening"
+  - Phi(X) reduced (less integration)
+  - R_sync may be disturbed
+
+Treatment:
+Antidepressants:
+  - SSRI: 5-HT up -> gradual upward shift of mu_V
+  - NDRI: DA, NE up -> Motivation, Energy up
+  
+Psychotherapy:
+  - CBT: Correct pessimistic predictions mu_V
+  - Behavioral activation: a -> positive outcome -> update model
+  
+Neurostimulation:
+  - ECT: "reset" -> change synaptic weights w
+  - TMS: Target stimulation dlPFC
+
+---
+
+22. Extended Sleep Model with ToM and Emotions
+
+22a. Emotional Processing in Sleep
+
+REM Sleep = Emotional Consolidation:
+
+During REM:
+  - A_BLA active (reactivation of emotional memories)
+  - vmPFC partially active (contextualization)
+  - Hippocampus interacts with Amygdala
+  
+Function:
+  1. Processing emotional traumas:
+     w_Amygdala->Memory weakens with repeated reactivation
+     -> extinction (fear extinction)
+  
+  2. Integration of emotional experience:
+     "Dreams" as generative simulation of emotional scenarios
+  
+  3. Mood regulation:
+     REM deprivation -> V down, emotional dysregulation
+
+SWS = Consolidation of Declarative Memory (including social):
+
+During SWS:
+  - Reactivation of mPFC, TPJ (social memories)
+  - Transfer of M_1_other experience to Long-Term Memory
+  - "Offline" update of social models
+  
+Example:
+  "I met a new person today -> during sleep brain integrates observations into coherent M_1_other"
+
+22b. Dreams as Simulation
+
+Dream(t) ~ p_generative(X | w, H_random, Emotion_residual, M_1_replay)
+
+Characteristics:
+  - High visual/perceptual activity (V1-V4)
+  - Weak critical evaluation (dlPFC suppressed)
+  - Emotionally saturated (A_BLA active)
+  - Social plots (mPFC, TPJ, M_1_other)
+  - Bizarreness (violation of physics, logic)
+  
+Lucid dreaming:
+  - dlPFC partially activates
+  - M_0 realizes: "This is a dream"
+  - Possibility of control: a_dream -> change X_dream
+
+Function of Dreams (Hypotheses):
+
+1. Threat simulation theory:
+   Dreams as training reactions to threats -> evolutionary adaptation
+   
+2. Emotional regulation:
+   Processing daily emotions in a safe environment
+   
+3. Creativity:
+   Random combinations of ideas -> insights
+   
+4. Social simulation:
+   Training M_1_other in imaginary scenarios
+
+---
+
+23. Conscious Experience: Qualia with Emotions
+
+23a. "What does it mean to feel?"
+
+Qualia_emotion(t) = Conscious(Feeling(t))
+
+where:
+  Feeling(t) = f(I_ant(t), V(t), A(t), Context(t), M_0(t))
+  
+Conscious(.) requires:
+  - Phi > threshold (integration)
+  - Feeling in Global Workspace
+  - M_0 capable of reflecting: "I feel X"
+
+Components of Emotional Qualia:
+
+1. Bodily sensation:
+   I_post -> "butterflies in stomach", "tightness in chest"
+   
+2. Valence (hedonic tone):
+   V -> "pleasant" vs "unpleasant"
+   
+3. Arousal (energy level):
+   A -> "activating" vs "calming"
+   
+4. Cognitive appraisal:
+   Context + M_0 -> "It's fear" vs "It's excitement"
+   (Same physiology, different interpretations!)
+   
+5. Motivation (action tendency):
+   "Want to run away" vs "Want to approach"
+
+23b. The "Hard Problem" for Emotions
+
+Why does a specific configuration {V=-0.8, A=0.3, I_ant=...} 
+feel EXACTLY like sadness and not something else?
+
+Model describes correlates but does not explain:
+  - Why is there subjective experience at all?
+  - Why does sadness "feel" that way?
+
+Analogy with color:
+  - lambda=650nm -> L-cone activity -> "red"
+  - But why does "red" look LIKE red?
+
+Possible answer via IIT:
+
+Phi_emotion = min_partition MI(Emotion_components)
+
+Subjective quality = structure of causal connections
+  "Sadness feels like this because it has precisely this 
+   causal structure in the integrated system"
+
+But this remains speculative.
+
+---
+
+24. Full Picture: Grand Unified Model
+
+24a. Architectural Diagram
+
+[ CONSCIOUSNESS (Phi > threshold) ]
+        ^
+        |
+[ Global Workspace (GWT) ]
+  - Coalitions A_i(t) compete
+  - Phase Synchronization R(t)
+  - Broadcasting -> Working Memory WM
+        ^
+        |
+        v
+[ Self-Model M_0 ] <--> [ Emotions V, A, Feeling ] <--> [ Theory of Mind M_1, M_2 ]
+  - Goals                 - Amygdala                      - mPFC, TPJ
+  - Beliefs               - Insula                        - Empathy
+  - Theta_self            - vmPFC                         - Perspective
+        ^
+        |
+        v
+[ Predictive Coding Hierarchy ]
+  X_L (abstract) <-- top-down
+      ^ |
+      | v
+  X_1 (sensory) --> bottom-up
+  Errors epsilon_l drive learning & attention
+        ^
+        |
+        v
+[ Neurons + Oscillations + Inhibition ]
+  - V_i(t), phi_i(t) [phase]
+  - Excitatory (E) <-> Inhibitory (I)
+  - PV, SST, VIP interneurons
+  - GABA_A, GABA_B
+        ^
+        |
+        v
+[ Neuromodulation (H) ]
+  DA, 5-HT, NE, ACh, GABA
+  -> Affects: eta, omega, g, tau
+        ^
+        |
+        v
+[ Body & Arousal ] <--> [ Action (a) ]
+  - HR, BP, Resp          - Active Inference
+  - Interoception         - Motor control
+        ^
+        |
+        v
+[ ENVIRONMENT (U) ]
+
+ANESTHESIA blocks at GABA level:
+  -> all higher levels collapse
+
+24b. Master Equation (Conceptually)
+
+Consciousness(t) = Phi(
+    Perception(U, a, GABA),
+    Self_model(X, Body, Theta),
+    Emotions(V, A, Amygdala, Insula),
+    ToM(M_1, M_2),
+    Integration(R_sync, A_workspace),
+    Arousal(NE, Hist),
+    Context(History, Goals)
+) > Phi_threshold
+
+where each component has its own dynamics dX/dt but is interconnected.
+
+---
+
+25. Empirical Predictions of the Model
+
+25a. Anesthesia
+
+Prediction 1:
+
+With increasing [Propofol]:
+  - M_2, M_1 fall first (social cognition)
+  - Then V, A become dull
+  - Then M_0 fragments
+  - Finally Phi -> 0
+
+Testing:
+- fMRI during anesthesia induction
+- ToM tasks, emotional recognition at different stages
+- EEG: measuring R_sync, gamma power
+
+25b. Emotional Regulation
+
+Prediction 2:
+
+Reappraisal should show:
+  - A_BLA down (fMRI)
+  - vmPFC -> Amygdala connectivity up
+  - A(t) down, V(t) shifts up
+  - Physiological arousal down (HR, SCR)
+
+Already confirmed by many studies!
+
+25c. ToM and Empathy
+
+Prediction 3:
+
+Dissociation of ToM and Empathy:
+  - Autism: mPFC, TPJ down in ToM tasks; possibly normal insula
+  - Psychopathy: normal mPFC/TPJ; Insula down, ACC down in empathy
+
+Confirmed: neuroimaging studies show exactly this!
+
+25d. Sleep and Consolidation
+
+Prediction 4:
+
+REM Deprivation:
+  - Disruption of emotional memory consolidation
+  - A_CeA reactivity up (hypersensitivity)
+  - Emotional dysregulation (large swings V, A)
+
+SWS Deprivation:
+  - Disruption of declarative memory (including social)
+  - Accuracy of M_1_other down (due to poor consolidation)
+
+Partially confirmed: REM deprivation indeed leads to emotional instability.
+
+---
+
+26. Phenomenological Space of Qualia (New Addition)
+
+26a. Definition of Experiential State
+
+Basic Definition:
+Q(t) subset of S(t)
+Where:
+- Q(t): Qualia state (experiential)
+- S(t): Full system state
+
+Critical Distinctions:
+Q(t) != X(t) (not just neural activity)
+Q(t) != M_0(t) (not just self-model)
+Q(t) subset of Conscious(t) (subset of conscious states)
+
+Formal Projection:
+Q(t) = Pi_Q(I_ant(t), V(t), A(t), X_workspace(t), M_0(t))
+Where Pi_Q is the projection into experiential space.
+
+Interpretation:
+Not every brain state is experienced. Q(t) defines a subspace that is:
+- Accessible "from within"
+- Has subjective quality
+- Can be introspectively reflected upon
+
+26b. Four Criteria for Qualia (Qualia Axioms)
+
+State y(t) is qualia <==> all four conditions are met:
+
+(Q1) Access:
+y(t) in Workspace(t)
+Mathematically: exists i : y(t) in A_i(t) AND A_i(t) > theta_consciousness
+
+(Q2) Self-reference:
+y(t) in M_0(t)
+The system models this state as part of itself.
+Formally: dM_0/dy != 0
+
+(Q3) Causal Efficacy:
+dF/dy != 0
+The state influences the system's free energy (impacts action, perception, plasticity). Qualia are not epiphenomenal.
+
+(Q4) Informational Closure:
+I(y ; U | M_0) ~ 0
+Given the self-model M_0, qualia y contain minimal additional information about the external world U.
+Interpretation: Qualia are an internal representation mediated by M_0, not a direct copy of the world (e.g., pain describes the internal state, not the tissue damage directly).
+
+26c. Closed Self-Referential Loop
+
+Transformation:
+From: dM_0/dt = r_0(X, a, Body, Theta)
+To (with Qualia):
+Loop: M_0 -> models Q, Q -> depends on M_0.
+
+Equations:
+dM_0/dt = r_0(...) + beta_Q * dL_qualia/dM_0
+dQ/dt = Pi_Q(dI_ant/dt, dV/dt, dA/dt, dX_workspace/dt, dM_0/dt)
+
+Where L_qualia is the loss function between predicted and actual qualia.
+
+Emergence:
+Subjective experience arises from this feedback loop. The more accurate M_0 is at modeling Q, the richer Q becomes, and the more complex M_0 becomes.
+
+26d. Qualia Dynamics
+
+dQ/dt = (1/tau_Q) * [Q_target(t) - Q(t)] + Sum_sources [w_source * Source(t)] + eta_Q * xi_Q(t)
+
+Time Constant: tau_Q ~ 100-500 ms (Qualia are not instantaneous).
+
+26e. Relation to Neural Dynamics
+
+Qualia are supervenient on neurons:
+Q(t) = Phi_projection(X(t), w(t), H(t), phi(t))
+
+Key Correlates:
+- Phase Synchronization: R_Q(t) > 0.85
+- Integrated Information: Phi_Q(t) (calculated only on Q-subsystem)
+- Metabolic Cost: E_Q(t) (Experience costs energy)
+
+26f. Integration with Components
+
+Updated Free Energy:
+F_total = ... + F_qualia
+F_qualia = ||Q_predicted - Q_actual||^2_Pi_Q / sigma_Q^2 + KL(q(Q) || p(Q | M_0))
+
+Updated Global Workspace:
+dA_i/dt = ... + lambda_qualia * Sum_j [Qualia_content(j) * Relevance(i,j)]
+
+26g. Types of Qualia
+
+- Sensory: Q_sensory (Redness, pitch).
+- Emotional: Q_emotion (Joy, anxiety).
+- Cognitive: Q_cognitive ("Aha!" moment, feeling of knowing).
+- Social: Q_social (Connection, rejection).
+- Bodily: Q_body (Fatigue, hunger, pain).
+
+26h. Consciousness Criterion with Qualia
+
+Conscious(t) <==> Phi_Q(t) > Phi_min AND R_Q(t) > 0.7 AND ||Q(t)|| > epsilon_Q AND dM_0/dQ != 0
+
+Levels:
+- Coma/Anesthesia: Phi_Q ~ 0
+- Deep Sleep: Low
+- REM: Medium (unstable)
+- Wakefulness: High (stable, integrated)
+- Psychedelics: Very High (Phi_Q > 1.0, expanded state)
+
+26i. Qualia in Different States
+
+- Wakefulness: Rich, structured, stable. M_0 <-> Q active.
+- REM: Rich but bizarre. M_0 partially disabled (low dlPFC).
+- NREM: Minimal.
+- Anesthesia: "Gap" in experience.
+- Meditation: Simplified, super-stable. "Pure awareness" without content.
+- Psychedelics: Extremely rich, non-standard. 5-HT2A -> disruption of standard Pi_Q.
+
+26j. The "Hard Problem" in the Formal Model
+
+Explanatory Gap:
+The function f(X, w...) describes the state S(t), but the transition to Phenomenal Experience Q(t) remains the gap.
+
+IIT Stance:
+Qualia = Intrinsic structure of integrated information.
+"Red feels like red because it has this unique causal structure."
+
+Model Position:
+The model describes correlates, conditions (Q1-Q4), and dynamics, but acknowledges that the "Hard Problem" is not solved by the current formalism.
+
+26k. Practical Implications
+
+- Neuroscience: Measure Phi_Q, R_Q, ||Q||.
+- Clinic: Diagnose Vegetative vs. Minimally Conscious vs. Locked-in (High Phi_Q, but a(t)=0).
+- AI: Condition for potential experience requires closed M_0 <-> Q loop, high Phi_Q, and causal efficacy.
+
+---
+
+27. Updated Equations with Qualia
+
+Full Equation System:
+
+# Qualia
+dQ/dt = (Q_target - Q)/tau_Q + Sum(w_i * Source_i) + noise
+Q_target = Projection(I_ant, V, A, X_workspace, M0)
+
+# Self-Model (Updated)
+dM0/dt = r0(X, a, Body, Theta) + beta_Q * (Q_actual - Q_predicted) * dL/dM0
+
+# Free Energy
+F = F_perception + F_action + F_emotion + F_qualia
+
+# Integrated Information
+Phi_Q = min_partition MI(Q1 : Q2 | cut)
+
+# Criteria
+Conscious <==> (Phi_Q > 0.5) AND (R_Q > 0.7) AND (Q in Workspace)
+
+---
+
+28. Empirical Predictions with Qualia
+
+1. Time Delay: Qualia appear with a delay (tau_Q ~ 200-500 ms) after stimulus X(t).
+2. Modulation via M_0: Changing the self-model (e.g., via meditation) changes Q for the same input X.
+3. Loop Disruption: Damage to mPFC disrupts the M_0 <-> Q loop, leading to derealization/depersonalization (qualia exist but are not integrated).
+4. Locked-in Syndrome: a(t)=0, but Q(t) and Phi_Q are normal (rich experience without behavior).
+
+
+I used AI to translate this text to English. I am not a native English speaker. 
