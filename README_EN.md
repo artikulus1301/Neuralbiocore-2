@@ -140,4 +140,4 @@ The project is based on the **26 Points of the Mathematical Model of Consciousne
 See the [LICENSE](LICENSE) file.
 
 ---
-*Developed within the framework of the Artificial Intelligence Evolution Project.*
+*Developed within the framework of the Artificial Evolution of Intellegence.*
